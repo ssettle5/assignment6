@@ -1,0 +1,73 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
+
+public class Assignment6 {
+
+    public static ArrayList<FYENote> loadMusic(Scanner scanner)
+            throws FYEMusicReaderException {
+        ArrayList<FYENote> notes = new ArrayList<>();
+
+        byte noteCount = scanner.nextByte();
+        if (noteCount < 0) throw new FYEMusicReaderException("Note counter out of range.");
+
+        for (int i = 0; i < noteCount; i++) {
+            byte note = scanner.nextByte();
+            byte timing = scanner.nextByte();
+
+            if (note < 0) throw new FYEMusicReaderException("Note out of range.");
+            if (timing < 0) throw new FYEMusicReaderException("Timing out of range.");
+
+            int microseconds = timing * 62500; // 1/16 of 1,000,000 = 62500
+            notes.add(new Note(note, microseconds));
+        }
+
+        return notes;
+    }
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        ArrayList<FYENote> loadedNotes = null;
+
+        while (true) {
+            System.out.println("\n[FYE Music Player]");
+            System.out.println("1. Load music");
+            System.out.println("2. Play music");
+            System.out.println("3. Quit");
+            System.out.print("Enter option: ");
+
+            String choice = input.nextLine();
+
+            try {
+                if (choice.equals("1")) {
+                    System.out.print("\nEnter name of music file: ");
+                    String fileName = input.nextLine();
+                    File file = new File(fileName);
+                    Scanner fileScanner = new Scanner(file);
+                    loadedNotes = loadMusic(fileScanner);
+                    FYEMusicPlayer.loadNotes(loadedNotes);
+                    System.out.println("Music loaded.");
+                } else if (choice.equals("2")) {
+                    FYEMusicPlayer.play();
+                } else if (choice.equals("3")) {
+                    FYEMusicPlayer.close();
+                    System.out.println("Shutting off...");
+                    break;
+                } else {
+                    System.out.println("Invalid option.");
+                }
+
+            } catch (FYEMusicReaderException e) {
+                System.out.println("Unable to load file: " + e.getMessage());
+            } catch (FileNotFoundException e) {
+                System.out.println(e.getMessage());
+            } catch (InputMismatchException e) {
+                System.out.println("File contains invalid information.");
+            } catch (NoSuchElementException e) {
+                System.out.println("File ended abruptly.");
+            } catch (Exception e) {
+                System.out.println("Unexpected error: " + e.getMessage());
+            }
+        }
+    }
+}
