@@ -1,0 +1,17 @@
+public class Note implements FYENote {
+    private byte note;
+    private int timing;
+
+    public Note(byte note, int timing) {
+        this.note = note;
+        this.timing = timing;
+    }
+
+    public byte getNote() {
+        return note;
+    }
+
+    public int getTiming() {
+        return timing;
+    }
+}
